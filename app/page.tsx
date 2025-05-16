@@ -30,6 +30,7 @@ export default function GamePage() {
                 setEvents(shuffledEvents);
                 setAvailable(shuffledEvents);
             } catch (err) {
+                console.log("Error fetching events: ", err);
                 setError('Failed to load events.');
             } finally {
                 setLoading(false);
@@ -114,9 +115,9 @@ export default function GamePage() {
 
     return (
         <div className="max-w-4xl mx-auto p-4 text-center">
-            <h1 className="text-2xl font-bold mb-2">Arrange Events Chronologically</h1>
+            <h1 className="text-2xl font-bold mb-2">Temporal Tiles</h1>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Drag and drop the events into the correct chronological order. You have 3 attempts!
+                Drag and drop the events into the correct chronological order. You have 3 tries to get it right!
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-6">
