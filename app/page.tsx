@@ -30,6 +30,7 @@ export default function GamePage() {
                 setEvents(data.events);
                 setAvailable(data.events);
             } catch (err) {
+                console.log("API error ", err);
                 setLoadError('Failed to load events from the server.');
             } finally {
                 setLoading(false);
