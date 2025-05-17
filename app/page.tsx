@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import EventTile from '../components/EventTile';
 import DropSlot from '../components/DropSlot';
+import CategoryWeekTable from '../components/CategoryWeekTable';
 import { fetchDailyEvents } from '../services/api';
 import { Event } from '../types';
 import Confetti from 'react-confetti';
@@ -18,20 +19,31 @@ export default function GamePage() {
     const [answerRevealed, setAnswerRevealed] = useState<boolean>(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [loadError, setLoadError] = useState<string | null>(null);
+    const [error, setError] = useState<string>('');
     const { width, height } = useWindowSize();
+
+    // Fisher-Yates shuffle
+    const shuffleArray = (array: Event[]): Event[] => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
 
     useEffect(() => {
         async function loadEvents() {
             setLoading(true);
-            setLoadError(null);
+            setError('');
             try {
                 const data = await fetchDailyEvents();
                 setEvents(data.events);
-                setAvailable(data.events);
+                localStorage.setItem('events', JSON.stringify(data.events)); // Save for drag-drop
+                setAvailable(shuffleArray(data.events));
             } catch (err) {
-                console.log("API error ", err);
-                setLoadError('Failed to load events from the server.');
+                console.log("Load events error: ", err)
+                setError('Failed to load events from the server.');
             } finally {
                 setLoading(false);
             }
@@ -44,27 +56,39 @@ export default function GamePage() {
 
         const newSlots = [...slots];
         const newAvailable = [...available];
-        const existingEvent = newSlots[index];
 
-        const alreadySlotted = newSlots.some(e => e?.id === event.id);
-        if (alreadySlotted) return;
+        const fromSlotIndex = newSlots.findIndex((e) => e?.id === event.id);
+        if (fromSlotIndex !== -1) {
+            // Move from one slot to another
+            newSlots[fromSlotIndex] = null;
+        } else {
+            // Remove from available pool
+            const availableIndex = newAvailable.findIndex((e) => e.id === event.id);
+            if (availableIndex !== -1) {
+                newAvailable.splice(availableIndex, 1);
+            }
+        }
 
-        if (existingEvent) {
-            newAvailable.push(existingEvent);
+        // Replace existing event in the drop target (put back to available)
+        if (newSlots[index]) {
+            newAvailable.push(newSlots[index] as Event);
         }
 
         newSlots[index] = event;
-        const filteredAvailable = newAvailable.filter(e => e.id !== event.id);
 
         setSlots(newSlots);
-        setAvailable(filteredAvailable);
+        setAvailable(newAvailable);
         setFeedback([]);
     };
 
     const resetBoard = () => {
-        setAvailable(events);
+        // Do NOT reset tries
+        const remainingEvents = [...events].filter(
+            (e) => !slots.some((slot) => slot?.id === e.id)
+        );
+        const availableReset = shuffleArray([...remainingEvents, ...slots.filter(Boolean) as Event[]]);
+        setAvailable(availableReset);
         setSlots(Array(5).fill(null));
-        setTries(3);
         setMessage('');
         setFeedback([]);
         setAnswerRevealed(false);
@@ -95,65 +119,77 @@ export default function GamePage() {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-lg">Loading events...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-lg text-red-500">{error}</p>
+            </div>
+        );
+    }
+
     const correctOrder = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return (
         <div className="max-w-4xl mx-auto p-4 text-center">
             <h1 className="text-2xl font-bold mb-2">Temporal Tiles</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Drag and drop the events into the correct chronological order. You have 3 tries to get it right!
+            <p className="text-base text-gray-600 dark:text-gray-400 mb-4">
+                3 chances to set the events of history in chronological order.
             </p>
+            <CategoryWeekTable />
 
-            {loading ? (
-                <p>Loading events...</p>
-            ) : loadError ? (
-                <p className="text-red-600 dark:text-red-400 mb-6">{loadError}</p>
-            ) : (
-                <>
-                    <div className="flex flex-wrap justify-center gap-4 mb-6">
-                        {slots.map((event, i) => {
-                            const status = feedback[i];
-                            const correctEvent = correctOrder[i];
-                            const displayEvent = answerRevealed ? correctEvent : event;
+            <div
+                className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 justify-items-center"
+                aria-label="Drop slots for arranging timeline"
+            >
+                {slots.map((event, i) => {
+                    const status = feedback[i];
+                    const correctEvent = correctOrder[i];
+                    const displayEvent = answerRevealed ? correctEvent : event;
 
-                            return (
-                                <DropSlot
-                                    key={i}
-                                    index={i}
-                                    event={displayEvent}
-                                    onDrop={handleDrop}
-                                    isCorrect={answerRevealed ? true : status}
-                                />
-                            );
-                        })}
-                    </div>
+                    return (
+                        <DropSlot
+                            key={i}
+                            index={i}
+                            event={displayEvent}
+                            onDrop={handleDrop}
+                            isCorrect={answerRevealed ? true : status}
+                        />
+                    );
+                })}
+            </div>
 
-                    <h2 className="text-lg font-semibold mb-2">Events</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                        {available.map((event) => (
-                            <EventTile
-                                key={event.id}
-                                event={event}
-                                onClick={() => {
-                                    const firstEmpty = slots.findIndex(s => s === null);
-                                    if (firstEmpty >= 0) handleDrop(event, firstEmpty);
-                                }}
-                            />
-                        ))}
-                    </div>
-                </>
-            )}
+            <h2 className="text-lg font-semibold mb-2">Events</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                {available.map((event) => (
+                    <EventTile
+                        key={event.id}
+                        event={event}
+                        onClick={() => {
+                            const firstEmpty = slots.findIndex(s => s === null);
+                            if (firstEmpty >= 0) handleDrop(event, firstEmpty);
+                        }}
+                    />
+                ))}
+            </div>
 
             <div className="space-x-2">
                 <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50"
+                    className="px-10 py-3 bg-blue-600 text-white rounded-md disabled:opacity-50"
                     onClick={checkAnswer}
-                    disabled={slots.includes(null) || answerRevealed || !!loadError}
+                    disabled={tries <= 0 || slots.includes(null) || answerRevealed}
                 >
                     Submit
                 </button>
                 <button
-                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md"
+                    className="px-10 py-3 bg-gray-300 text-gray-800 rounded-md"
                     onClick={resetBoard}
                 >
                     Reset

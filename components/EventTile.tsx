@@ -1,33 +1,28 @@
-// components/EventTile.tsx
-'use client';
-
 import React from 'react';
 import { Event } from '../types';
 
-type Props = {
+interface Props {
     event: Event;
     onClick?: () => void;
-    draggable?: boolean;
-};
+}
 
-export default function EventTile({ event, onClick, draggable = true }: Props) {
+const EventTile: React.FC<Props> = ({ event, onClick }) => {
+    const handleDragStart = (e: React.DragEvent) => {
+        e.dataTransfer.setData('eventId', event.id);
+    };
+
     return (
         <div
-            className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow hover:shadow-md transition-all cursor-pointer select-none text-left flex flex-col gap-1"
-            draggable={draggable}
+            draggable
+            onDragStart={handleDragStart}
             onClick={onClick}
-            onDragStart={(e) => {
-                e.dataTransfer.setData('text/plain', JSON.stringify(event));
-            }}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') onClick?.();
-            }}
+            className="cursor-grab active:cursor-grabbing p-4 border rounded-md shadow hover:bg-gray-100 dark:hover:bg-gray-800 transition"
         >
-            <div className="text-3xl mb-1">{event.emoji}</div>
-            <div className="text-base font-semibold text-gray-800 dark:text-gray-100">{event.title}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-300">{event.text}</div>
+            <div className="text-xl">{event.emoji}</div>
+            <h3 className="font-semibold">{event.title}</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{event.text}</p>
         </div>
     );
-}
+};
+
+export default EventTile;

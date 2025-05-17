@@ -8,51 +8,45 @@ interface Props {
     isCorrect?: boolean;
 }
 
-export default function DropSlot({ index, event, onDrop, isCorrect }: Props) {
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        const data = e.dataTransfer.getData('application/json');
-        if (data) {
-            const droppedEvent: Event = JSON.parse(data);
-            onDrop(droppedEvent, index);
-        }
+const DropSlot: React.FC<Props> = ({ index, event, onDrop, isCorrect }) => {
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault(); // Necessary to allow a drop
     };
 
-    const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-        if (event) {
-            e.dataTransfer.setData('application/json', JSON.stringify(event));
-            e.currentTarget.classList.add('opacity-50');
-        }
-    };
+    const handleDrop = (e: React.DragEvent) => {
+        const eventId = e.dataTransfer.getData('eventId');
+        if (!eventId) return;
 
-    const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-        e.currentTarget.classList.remove('opacity-50');
+        const foundEvent = JSON.parse(localStorage.getItem('events') || '[]').find(
+            (ev: Event) => ev.id === eventId
+        );
+        if (foundEvent) onDrop(foundEvent, index);
     };
-
-    const borderColor = isCorrect === undefined
-        ? 'border-gray-300'
-        : isCorrect
-            ? 'border-green-500'
-            : 'border-red-500';
 
     return (
         <div
-            onDragOver={(e) => e.preventDefault()}
+            onDragOver={handleDragOver}
             onDrop={handleDrop}
-            className={`w-36 h-24 border-2 ${borderColor} rounded-xl transition flex items-center justify-center bg-gray-50`}
+            className={`aspect-square w-full max-w-[160px] sm:max-w-[200px] p-2 border-2 rounded-xl shadow transition 
+                flex items-center justify-center text-center 
+                ${isCorrect === true
+                    ? 'border-green-500 bg-green-50 dark:bg-green-900'
+                    : isCorrect === false
+                        ? 'border-red-500 bg-red-50 dark:bg-red-900'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                }`}
         >
             {event ? (
-                <div
-                    draggable
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    className="w-full h-full px-3 py-2 cursor-grab active:cursor-grabbing rounded-xl bg-white shadow flex items-center justify-center text-sm font-medium text-center"
-                >
-                    {event.title}
+                <div className="flex flex-col items-center justify-center gap-1 px-1">
+                    <div className="text-2xl">{event.emoji}</div>
+                    <h3 className="font-semibold text-sm">{event.title}</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">{event.text}</p>
                 </div>
             ) : (
-                <span className="text-gray-400 text-sm">Drop event</span>
+                <span className="text-gray-400 dark:text-gray-500 text-lg font-bold">{index + 1}</span>
             )}
         </div>
     );
-}
+};
+
+export default DropSlot;
