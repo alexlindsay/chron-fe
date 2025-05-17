@@ -30,7 +30,7 @@ export default function CategoryWeekTable() {
                 return (
                     <div
                         key={abbr}
-                        className={`${color} relative h-16 flex items-center justify-center rounded-lg shadow text-center`}
+                        className={`${color} relative h-16 flex items-center justify-center rounded-lg shadow text-center text-black`}
                     >
                         <span className="text-xs sm:text-sm font-semibold">{name}</span>
                         <span className="absolute bottom-1 left-1 text-[10px] sm:text-xs font-bold">{abbr}</span>
