@@ -18,20 +18,19 @@ export default function GamePage() {
     const [answerRevealed, setAnswerRevealed] = useState<boolean>(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string>('');
+    const [loadError, setLoadError] = useState<string | null>(null);
     const { width, height } = useWindowSize();
 
     useEffect(() => {
         async function loadEvents() {
+            setLoading(true);
+            setLoadError(null);
             try {
-                setLoading(true);
                 const data = await fetchDailyEvents();
-                const shuffledEvents = data.events.sort(() => Math.random() - 0.5);
-                setEvents(shuffledEvents);
-                setAvailable(shuffledEvents);
+                setEvents(data.events);
+                setAvailable(data.events);
             } catch (err) {
-                console.log("Error fetching events: ", err);
-                setError('Failed to load events.');
+                setLoadError('Failed to load events from the server.');
             } finally {
                 setLoading(false);
             }
@@ -68,7 +67,7 @@ export default function GamePage() {
         setMessage('');
         setFeedback([]);
         setAnswerRevealed(false);
-        setShowConfetti(false);  // <--- reset confetti state
+        setShowConfetti(false);
     };
 
     const checkAnswer = () => {
@@ -80,7 +79,7 @@ export default function GamePage() {
         if (isCorrect) {
             setMessage('✅ Correct!');
             setFeedback(slots.map(() => true));
-            setShowConfetti(true);  // <--- show confetti here
+            setShowConfetti(true);
         } else {
             const newTries = tries - 1;
             setTries(newTries);
@@ -95,22 +94,6 @@ export default function GamePage() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-lg">Loading events...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-lg text-red-500">{error}</p>
-            </div>
-        );
-    }
-
     const correctOrder = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return (
@@ -120,43 +103,51 @@ export default function GamePage() {
                 Drag and drop the events into the correct chronological order. You have 3 tries to get it right!
             </p>
 
-            <div className="flex flex-wrap justify-center gap-4 mb-6">
-                {slots.map((event, i) => {
-                    const status = feedback[i];
-                    const correctEvent = correctOrder[i];
-                    const displayEvent = answerRevealed ? correctEvent : event;
+            {loading ? (
+                <p>Loading events...</p>
+            ) : loadError ? (
+                <p className="text-red-600 dark:text-red-400 mb-6">{loadError}</p>
+            ) : (
+                <>
+                    <div className="flex flex-wrap justify-center gap-4 mb-6">
+                        {slots.map((event, i) => {
+                            const status = feedback[i];
+                            const correctEvent = correctOrder[i];
+                            const displayEvent = answerRevealed ? correctEvent : event;
 
-                    return (
-                        <DropSlot
-                            key={i}
-                            index={i}
-                            event={displayEvent}
-                            onDrop={handleDrop}
-                            isCorrect={answerRevealed ? true : status}
-                        />
-                    );
-                })}
-            </div>
+                            return (
+                                <DropSlot
+                                    key={i}
+                                    index={i}
+                                    event={displayEvent}
+                                    onDrop={handleDrop}
+                                    isCorrect={answerRevealed ? true : status}
+                                />
+                            );
+                        })}
+                    </div>
 
-            <h2 className="text-lg font-semibold mb-2">Events</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                {available.map((event) => (
-                    <EventTile
-                        key={event.id}
-                        event={event}
-                        onClick={() => {
-                            const firstEmpty = slots.findIndex(s => s === null);
-                            if (firstEmpty >= 0) handleDrop(event, firstEmpty);
-                        }}
-                    />
-                ))}
-            </div>
+                    <h2 className="text-lg font-semibold mb-2">Events</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                        {available.map((event) => (
+                            <EventTile
+                                key={event.id}
+                                event={event}
+                                onClick={() => {
+                                    const firstEmpty = slots.findIndex(s => s === null);
+                                    if (firstEmpty >= 0) handleDrop(event, firstEmpty);
+                                }}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
 
             <div className="space-x-2">
                 <button
                     className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50"
                     onClick={checkAnswer}
-                    disabled={slots.includes(null) || answerRevealed}
+                    disabled={slots.includes(null) || answerRevealed || !!loadError}
                 >
                     Submit
                 </button>
