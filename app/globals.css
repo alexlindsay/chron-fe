@@ -3,19 +3,39 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+    --font-sans: 'Space Grotesk', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-sans);
+}
+
+
+/* Use mono font for these classes */
+.code,
+.date,
+.mono {
+    font-family: var(--font-mono), monospace;
+}
+
+
+@keyframes timeline {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-timeline {
+    background-image: repeating-linear-gradient(to right,
+            #4b5563 0px,
+            #4b5563 4px,
+            transparent 4px,
+            transparent 8px);
+    background-size: 200% 100%;
+    animation: timeline 2s linear infinite;
 }

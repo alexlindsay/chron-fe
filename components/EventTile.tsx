@@ -16,7 +16,7 @@ const EventTile: React.FC<Props> = ({ event, onClick }) => {
             draggable
             onDragStart={handleDragStart}
             onClick={onClick}
-            className="cursor-grab active:cursor-grabbing p-4 border rounded-md shadow hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            className="cursor-grab active:cursor-grabbing p-4 border rounded-md shadow hover:bg-gray-100 dark:hover:bg-gray-800 transition font-mono"
         >
             <div className="text-xl">{event.emoji}</div>
             <h3 className="font-semibold">{event.title}</h3>
