@@ -8,9 +8,10 @@ const ShareButton = () => {
                     url: "https://temporaltiles.com",
                 });
                 console.log("Thanks for sharing!");
-            } catch (err: any) {
-                if (err.name !== "AbortError") {
-                    console.error("Error sharing:", err);
+            } catch (err: unknown) {
+                if (err instanceof DOMException && err.name === "AbortError") {
+                    // User cancelled the share; no need to log
+                    return;
                 }
             }
         } else {
