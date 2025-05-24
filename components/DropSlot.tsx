@@ -13,19 +13,19 @@ interface Props {
 }
 
 const DropSlot: React.FC<Props> = ({ index, event, onDrop, onRemove, isCorrect, answerRevealed, showDate }) => {
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-    };
+    // const handleDragOver = (e: React.DragEvent) => {
+    //     e.preventDefault();
+    // };
 
-    const handleDrop = (e: React.DragEvent) => {
-        const eventId = e.dataTransfer.getData('eventId');
-        if (!eventId) return;
+    // const handleDrop = (e: React.DragEvent) => {
+    //     const eventId = e.dataTransfer.getData('eventId');
+    //     if (!eventId) return;
 
-        const foundEvent = JSON.parse(localStorage.getItem('events') || '[]').find(
-            (ev: Event) => ev.id === eventId
-        );
-        if (foundEvent) onDrop(foundEvent, index);
-    };
+    //     const foundEvent = JSON.parse(localStorage.getItem('events') || '[]').find(
+    //         (ev: Event) => ev.id === eventId
+    //     );
+    //     if (foundEvent) onDrop(foundEvent, index);
+    // };
 
     const handleClick = () => {
         if (event && onRemove) {

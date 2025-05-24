@@ -15,7 +15,7 @@ export default function GamePage() {
     const [slots, setSlots] = useState<(Event | null)[]>(Array(5).fill(null));
     const [tries, setTries] = useState<number>(3);
     const [message, setMessage] = useState<string>('');
-    const [feedback, setFeedback] = useState<boolean[]>([]);
+    // const [feedback, setFeedback] = useState<boolean[]>([]);
     const [answerRevealed, setAnswerRevealed] = useState<boolean>(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
@@ -78,7 +78,7 @@ export default function GamePage() {
 
         setSlots(newSlots);
         setAvailable(newAvailable);
-        setFeedback([]);
+        // setFeedback([]);
     };
 
 
@@ -113,7 +113,7 @@ export default function GamePage() {
         setAvailable(availableReset);
         setSlots(Array(5).fill(null));
         setMessage('');
-        setFeedback([]);
+        // setFeedback([]);
         setAnswerRevealed(false);
         setShowConfetti(false);
     };
@@ -127,12 +127,12 @@ export default function GamePage() {
 
         if (isCorrect) {
             setMessage('✅ Correct!');
-            setFeedback(slots.map(() => true));
+            // setFeedback(slots.map(() => true));
             setShowConfetti(true);
         } else {
             const newTries = tries - 1;
             setTries(newTries);
-            setFeedback(slots.map((e, i) => e?.id === correctOrder[i].id));
+            // setFeedback(slots.map((e, i) => e?.id === correctOrder[i].id));
 
             if (newTries <= 0) {
                 setMessage('❌ Out of tries. Here’s the correct order:');
@@ -143,22 +143,22 @@ export default function GamePage() {
         }
     };
 
-    let statusContent = null;
-    if (loading) {
-        statusContent = (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-lg">Loading events...</p>
-            </div>
-        );
-    } else if (error) {
-        statusContent = (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-lg text-red-500">{error}</p>
-            </div>
-        );
-    } else {
-        statusContent = null;
-    }
+    // let statusContent = null;
+    // if (loading) {
+    //     statusContent = (
+    //         <div className="flex items-center justify-center h-screen">
+    //             <p className="text-lg">Loading events...</p>
+    //         </div>
+    //     );
+    // } else if (error) {
+    //     statusContent = (
+    //         <div className="flex items-center justify-center h-screen">
+    //             <p className="text-lg text-red-500">{error}</p>
+    //         </div>
+    //     );
+    // } else {
+    //     statusContent = null;
+    // }
 
     const correctOrder = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
