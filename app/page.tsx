@@ -8,6 +8,7 @@ import { fetchDailyEvents } from '../services/api';
 import { Event } from '../types';
 import Confetti from 'react-confetti';
 import { useWindowSize } from '../hooks/useWindowSize';
+import ShareButton from '@/components/ShareButton';
 
 export default function GamePage() {
     const [events, setEvents] = useState<Event[]>([]);
@@ -201,15 +202,9 @@ export default function GamePage() {
             <h2 className="text-lg font-sans font-semibold my-2">Your Timeline</h2>
             <div className="flex flex-col gap-4 w-full max-w-md mx-auto mb-4">
                 {slots.map((event, i) => {
-                    if (i == 0) {
-                        console.log("correctOrder ", correctOrder)
-                        console.log("=== correctOrder[i].date ", correctOrder[i]?.date);
-                        console.log("event?.date ", event?.date);
-                    }
                     const isCorrect = event && correctOrder[i]
                         ? event.date === correctOrder[i].date
                         : undefined;
-                    console.log("Drop slot", i, " is correct ", isCorrect)
                     return (
                         <DropSlot
                             key={i}
@@ -242,6 +237,7 @@ export default function GamePage() {
                 >
                     Reset
                 </button>
+                <ShareButton />
             </div>
 
             <p className="text-lg font-medium mt-4">{message}</p>
