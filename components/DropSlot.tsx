@@ -36,7 +36,7 @@ const DropSlot: React.FC<Props> = ({ index, event, onDrop, onRemove, isCorrect, 
     return (
         <div
             className={cn(
-                "border-2 border-dashed rounded-xl p-2 h-24 flex items-center justify-between text-center transition-all duration-300",
+                "border-2 border-dashed rounded-xl px-2 py-4 min-h-24 flex items-center justify-between text-center transition-all duration-300",
                 event ? "border-blue-300 bg-blue-100 dark:bg-blue-800" : "",
                 answerRevealed && isCorrect === true ? "border-green-400 bg-green-50 dark:bg-green-900" : "",
                 answerRevealed && isCorrect === false ? "border-red-400 bg-red-50 dark:bg-red-900" : "",
@@ -53,7 +53,7 @@ const DropSlot: React.FC<Props> = ({ index, event, onDrop, onRemove, isCorrect, 
         >
             {event ? (
                 <>
-                    <div className="text-2xl">
+                    <div className="text-2xl mr-1">
                         {answerRevealed && isCorrect !== undefined ? (
                             <span className="text-2xl ml-2">
                                 {isCorrect ? "✅" : "❌"}

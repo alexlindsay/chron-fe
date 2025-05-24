@@ -163,7 +163,7 @@ export default function GamePage() {
     const correctOrder = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return (
-        <div className="max-w-4xl mx-auto p-4 text-center font-mono">
+        <div className="max-w-4xl mx-auto p-4 text-center font-mono dark:bg-zinc-900 dark:text-white">
             <h1 className="text-2xl font-sans font-bold mb-2">Temporal Tiles</h1>
             <p className="text-base text-gray-600 dark:text-gray-400 mb-4 font-sans">
                 3 chances to set the events of history in chronological order.
