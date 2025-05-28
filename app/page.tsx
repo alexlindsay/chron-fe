@@ -123,7 +123,14 @@ export default function GamePage() {
     const checkAnswer = () => {
         if (slots.some(s => s === null)) return;
 
-        const correctOrder = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const correctOrder = [...events].sort((a, b) => {
+            const [y1, m1, d1] = parseDateParts(a.date);
+            const [y2, m2, d2] = parseDateParts(b.date);
+
+            if (y1 !== y2) return y1 - y2;
+            if (m1 !== m2) return m1 - m2;
+            return d1 - d2;
+        });
         const isCorrect = slots.every((e, i) => e?.id === correctOrder[i].id);
         setAnswerRevealed(true);
 
