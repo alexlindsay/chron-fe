@@ -83,6 +83,8 @@ const DropSlot: React.FC<Props> = ({ index, event, onDrop, onRemove, isCorrect, 
 
                                 if (year < 0) {
                                     return `${Math.abs(year)} BC`;
+                                } if (year < 1000) {
+                                    return `${year} AD`
                                 }
 
                                 const date = new Date(`${yearStr}-${monthStr}-${dayStr}`);
