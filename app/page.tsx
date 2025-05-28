@@ -147,7 +147,21 @@ export default function GamePage() {
         }
     };
 
-    const correctOrder = [...events].sort((a, b) => a.date.localeCompare(b.date));
+    const parseDateParts = (dateStr: string) => {
+        const match = dateStr.match(/^(-?\d+)-(\d{2})-(\d{2})$/);
+        if (!match) return [0, 0, 0]; // fallback
+        const [, year, month, day] = match;
+        return [parseInt(year, 10), parseInt(month, 10), parseInt(day, 10)];
+    };
+
+    const correctOrder = [...events].sort((a, b) => {
+        const [y1, m1, d1] = parseDateParts(a.date);
+        const [y2, m2, d2] = parseDateParts(b.date);
+
+        if (y1 !== y2) return y1 - y2;
+        if (m1 !== m2) return m1 - m2;
+        return d1 - d2;
+    });
 
     const eventsLoaded = available.length === 0 ? (
         <p className='align-center pb-4'>All events in play</p>
@@ -206,12 +220,12 @@ export default function GamePage() {
                         <DropSlot
                             key={i}
                             index={i}
-                            event={event}
+                            event={gameOver && !showConfetti ? correctOrder[i] : event}
                             onDrop={handleDrop}
                             isCorrect={isCorrect}
                             onRemove={handleRemoveFromSlot}
                             answerRevealed={answerRevealed}
-                            showDate={gameOver}
+                            gameOver={gameOver}
                         />
                     )
                 })}
