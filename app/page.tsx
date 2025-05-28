@@ -147,7 +147,43 @@ export default function GamePage() {
         }
     };
 
-    const correctOrder = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const correctOrder = [...events].sort((a, b) => a.date.localeCompare(b.date));
+
+    const eventsLoaded = available.length === 0 ? (
+        <p className='align-center pb-4'>All events in play</p>
+    ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6 place-items-center">
+            {loading ? (
+                <div className="flex flex-col items-center justify-center col-span-full">
+                    <div className="w-48 h-2 bg-gradient-to-r from-transparent via-gray-400 to-transparent animate-timeline rounded-full my-4" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Assembling moments in history...</p>
+                </div>
+            ) : error ? (
+                <p className="text-lg text-red-500 col-span-full">{error}</p>
+            ) : (
+
+
+                available.map((event, i) => (
+                    <EventTile
+                        key={event.id}
+                        event={gameOver && !showConfetti ? correctOrder[i] : event}
+                        onClick={() => {
+                            const firstEmpty = slots.findIndex(s => s === null);
+                            if (firstEmpty >= 0) handleDrop(event, firstEmpty);
+                        }}
+                    />
+                ))
+            )}
+        </div>
+    )
+
+    const eventsContent = loading ? (
+        <div className="text-center p-4">Loading events...</div>
+    ) : (error || !events) ? (
+        <div className="text-center p-4 text-red-500">
+            I'm having trouble getting the events right now. Please come back later.
+        </div>
+    ) : eventsLoaded;
 
     return (
         <div className="max-w-4xl mx-auto p-4 text-center font-mono dark:bg-zinc-900 dark:text-white">
@@ -157,33 +193,8 @@ export default function GamePage() {
             </p>
 
             <h2 className="text-lg font-sans font-semibold my-2">Events</h2>
-            {available.length === 0 ? (
-                <p className='align-center pb-4'>All events in play</p>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6 place-items-center">
-                    {loading ? (
-                        <div className="flex flex-col items-center justify-center col-span-full">
-                            <div className="w-48 h-2 bg-gradient-to-r from-transparent via-gray-400 to-transparent animate-timeline rounded-full my-4" />
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Assembling moments in history...</p>
-                        </div>
-                    ) : error ? (
-                        <p className="text-lg text-red-500 col-span-full">{error}</p>
-                    ) : (
 
-
-                        available.map((event) => (
-                            <EventTile
-                                key={event.id}
-                                event={event}
-                                onClick={() => {
-                                    const firstEmpty = slots.findIndex(s => s === null);
-                                    if (firstEmpty >= 0) handleDrop(event, firstEmpty);
-                                }}
-                            />
-                        ))
-                    )}
-                </div>
-            )}
+            {eventsContent}
 
             <h2 className="text-lg font-sans font-semibold my-2">Your Timeline</h2>
             <div className="flex flex-col gap-4 w-full max-w-md mx-auto mb-4">
