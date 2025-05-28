@@ -80,8 +80,6 @@ const DropSlot: React.FC<Props> = ({ index, event, onDrop, onRemove, isCorrect, 
 
                                 const [, yearStr, monthStr, dayStr] = match;
                                 const year = parseInt(yearStr, 10);
-                                const month = parseInt(monthStr, 10);
-                                const day = parseInt(dayStr, 10);
 
                                 if (year < 0) {
                                     return `${Math.abs(year)} BC`;
