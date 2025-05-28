@@ -181,7 +181,7 @@ export default function GamePage() {
         <div className="text-center p-4">Loading events...</div>
     ) : (error || !events) ? (
         <div className="text-center p-4 text-red-500">
-            I'm having trouble getting the events right now. Please come back later.
+            I am having trouble getting the events right now. Please come back later.
         </div>
     ) : eventsLoaded;
 
