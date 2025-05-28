@@ -21,6 +21,7 @@ export default function GamePage() {
     const [showConfetti, setShowConfetti] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
+    const [gameOver, setGameOver] = useState<boolean>(false);
     const { width, height } = useWindowSize();
 
     // Fisher-Yates shuffle
@@ -128,6 +129,7 @@ export default function GamePage() {
 
         if (isCorrect) {
             setMessage('✅ Correct!');
+            setGameOver(true);
             // setFeedback(slots.map(() => true));
             setShowConfetti(true);
         } else {
@@ -138,28 +140,12 @@ export default function GamePage() {
             if (newTries <= 0) {
                 setMessage('❌ Out of tries. Here’s the correct order:');
                 setAnswerRevealed(true);
+                setGameOver(true);
             } else {
                 setMessage('Try again!');
             }
         }
     };
-
-    // let statusContent = null;
-    // if (loading) {
-    //     statusContent = (
-    //         <div className="flex items-center justify-center h-screen">
-    //             <p className="text-lg">Loading events...</p>
-    //         </div>
-    //     );
-    // } else if (error) {
-    //     statusContent = (
-    //         <div className="flex items-center justify-center h-screen">
-    //             <p className="text-lg text-red-500">{error}</p>
-    //         </div>
-    //     );
-    // } else {
-    //     statusContent = null;
-    // }
 
     const correctOrder = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -214,14 +200,11 @@ export default function GamePage() {
                             isCorrect={isCorrect}
                             onRemove={handleRemoveFromSlot}
                             answerRevealed={answerRevealed}
-                            showDate={tries <= 0 && answerRevealed}
+                            showDate={gameOver}
                         />
                     )
                 })}
             </div>
-
-
-
 
             <div className="space-x-2">
                 <button
